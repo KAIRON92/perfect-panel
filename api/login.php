@@ -5,8 +5,8 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // Supabase Config
-define('SUPABASE_URL', 'https://nemtwrdyuziirobplbcc.supabase.co');
-define('SUPABASE_KEY', 'sb_secret_thOtZoku4ZKobkCDAzZFXw_roYLfWm7');
+define('SUPABASE_URL', getenv('SUPABASE_URL'));
+define('SUPABASE_KEY', getenv('SUPABASE_KEY'));
 
 function callSupabase($method, $endpoint, $data = null) {
     $url = SUPABASE_URL . '/rest/v1/' . $endpoint;
