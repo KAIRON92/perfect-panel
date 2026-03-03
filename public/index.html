@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perfect Panel Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h2 {
+            text-align: center;
+            color: #1a1a2e;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        .input-group {
+            margin-bottom: 25px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+        }
+        .success { background: #c6f6d5; color: #22543d; display: block; border-left: 5px solid #38a169; }
+        .error { background: #fed7d7; color: #742a2a; display: block; border-left: 5px solid #e53e3e; }
+        .warning { background: #feebc8; color: #744210; display: block; border-left: 5px solid #dd6b20; }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .info-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+            border-left: 5px solid #667eea;
+        }
+        .info-card .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .info-card .row:last-child { border-bottom: none; }
+        .info-card .label { color: #718096; font-weight: 500; }
+        .info-card .value { color: #2d3748; font-weight: 600; }
+        .device-info {
+            background: #edf2f7;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-premium { background: #9f7aea; color: white; }
+        .badge-vip { background: #fbbf24; color: black; }
+        .badge-free { background: #a0aec0; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container" id="loginContainer">
+        <h2>⚡ PERFECT PANEL ⚡</h2>
+        
+        <div class="input-group">
+            <label>License Key</label>
+            <input type="text" id="licenseKey" placeholder="Enter your license key" autocomplete="off">
+        </div>
+        
+        <button onclick="login()">LOGIN</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px;">Verifying...</p>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="device-info" id="deviceInfo"></div>
+        
+        <div class="info-card" id="infoCard">
+            <div class="row">
+                <span class="label">Plan:</span>
+                <span class="value" id="planValue"></span>
+            </div>
+            <div class="row">
+                <span class="label">Expires:</span>
+                <span class="value" id="expiryValue"></span>
+            </div>
+            <div class="row">
+                <span class="label">Days Left:</span>
+                <span class="value" id="daysValue"></span>
+            </div>
+            <div class="row">
+                <span class="label">Total Logins:</span>
+                <span class="value" id="loginsValue"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Get device info
+    function getDeviceId() {
+        let deviceId = localStorage.getItem('device_id');
+        if (!deviceId) {
+            deviceId = 'DEV_' + Math.random().toString(36).substring(2, 15) + 
+                      Math.random().toString(36).substring(2, 15) +
+                      '_' + Date.now().toString(36);
+            localStorage.setItem('device_id', deviceId);
+        }
+        return deviceId;
+    }
+
+    function getDeviceName() {
+        // This will be overridden by actual device info from game
+        return 'Web Browser';
+    }
+
+    async function login() {
+        const licenseKey = document.getElementById('licenseKey').value.trim();
+        if (!licenseKey) {
+            showMessage('Please enter license key', 'error');
+            return;
+        }
+
+        // Show loading
+        document.getElementById('loading').style.display = 'block';
+        
+        const deviceId = getDeviceId();
+        const deviceName = getDeviceName();
+
+        try {
+            const response = await fetch('/api/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    'license_key': licenseKey,
+                    'device_id': deviceId,
+                    'device_name': deviceName,
+                    'device_model': navigator.platform,
+                    'device_os': navigator.userAgent
+                })
+            });
+            
+            const data = await response.json();
+            document.getElementById('loading').style.display = 'none';
+            
+            if (data.status === 'success') {
+                // Hide login elements
+                document.getElementById('licenseKey').style.display = 'none';
+                document.querySelector('button').style.display = 'none';
+                
+                // Show info card
+                document.getElementById('infoCard').style.display = 'block';
+                document.getElementById('planValue').innerHTML = `<span class="badge badge-${data.plan}">${data.plan.toUpperCase()}</span>`;
+                document.getElementById('expiryValue').innerText = new Date(data.expiry_date).toLocaleDateString();
+                document.getElementById('daysValue').innerText = data.days_left + ' days';
+                document.getElementById('loginsValue').innerText = data.total_logins || 1;
+                
+                // Show success message
+                document.getElementById('deviceInfo').innerHTML = `
+                    <strong>✅ ${data.message}</strong><br>
+                    Device ID: ${deviceId.substring(0, 20)}...
+                `;
+                document.getElementById('deviceInfo').style.display = 'block';
+                
+            } else if (data.status === 'device_mismatch') {
+                showMessage(data.message, 'warning');
+                document.getElementById('deviceInfo').innerHTML = `
+                    <strong>⚠️ Device Mismatch!</strong><br>
+                    This key is registered to: ${data.registered_device || 'another device'}
+                `;
+                document.getElementById('deviceInfo').style.display = 'block';
+            } else {
+                showMessage(data.message, 'error');
+            }
+            
+        } catch (error) {
+            document.getElementById('loading').style.display = 'none';
+            showMessage('Connection error', 'error');
+        }
+    }
+
+    function showMessage(text, type) {
+        const msg = document.getElementById('message');
+        msg.textContent = text;
+        msg.className = 'message ' + type;
+    }
+    </script>
+</body>
+</html>
