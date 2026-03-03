@@ -6,8 +6,8 @@ header('Content-Type: text/html; charset=utf-8');
 define('ADMIN_SECRET', 'wisdom123');
 
 // Supabase Config
-define('SUPABASE_URL', 'https://mysosgrunimtugsebtzx.supabase.co');
-define('SUPABASE_KEY', 'sb_secret_XHED4mR0dfltAkfuZceEvA_nbhnCgiE');
+define('SUPABASE_URL', 'https://nemtwrdyuziirobplbcc.supabase.co');
+define('SUPABASE_KEY', 'sb_secret_thOtZoku4ZKobkCDAzZFXw_roYLfWm7');
 
 // ----------------------------------------------------------------------
 // FUNCTIONS
